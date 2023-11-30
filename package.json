@@ -1,0 +1,18 @@
+{
+  "name": "aoc2023",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "minimist": "^1.2.8"
+  },
+  "scripts": {
+    "today": "bun run --silent index.ts --day $(date +'%d')",
+    "day": "bun run index.ts"
+  }
+}
