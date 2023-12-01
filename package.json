@@ -13,6 +13,7 @@
     "minimist": "^1.2.8"
   },
   "scripts": {
+    "copy": "cp -i ./src/00/index.ts ./src/$(date +'%d')/index.ts",
     "open": "cmd.exe /C start  https://adventofcode.com/2023/day/$(date +'%-d') 2>/dev/null",
     "start": "bun --watch --silent index.ts --day $(date +'%d')",
     "today": "bun open && bun start",
