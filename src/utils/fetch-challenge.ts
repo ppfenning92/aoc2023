@@ -15,6 +15,11 @@ export const prepare = async (day: string): Promise<string> => {
     `https://adventofcode.com/2023/day/${parseInt(day, 10)}/input`,
     { headers: { cookie: `session=${aoc_token}` } },
   ).then(async (res) => {
+    if (res.status !== 200) {
+      console.error("Cannot download challenge data.");
+      console.warn(await res.text());
+      process.exit(1);
+    }
     const text = await res.text();
     Bun.write(path, text);
     return text;
