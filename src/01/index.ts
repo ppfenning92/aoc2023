@@ -1,3 +1,4 @@
+import { sumReducer, toInt } from "../utils";
 import { prepare } from "../utils/fetch-challenge";
 import { Res } from "../utils/types";
 
@@ -7,9 +8,9 @@ const one = async (data: string): Promise<Res> => {
   const numsInLines = lines
     .map((l) => l.replaceAll(/[\D]/g, ""))
     .map((digits) => `${digits.at(0)}${digits.at(-1)}`)
-    .map((s) => parseInt(s, 10));
+    .map(toInt);
 
-  const sum = numsInLines.reduce((sum, x) => (sum += x), 0);
+  const sum = numsInLines.reduce(sumReducer, 0);
 
   return sum;
 };
