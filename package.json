@@ -3,6 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
+    "@total-typescript/ts-reset": "^0.5.1",
     "bun-types": "latest"
   },
   "peerDependencies": {
@@ -12,7 +13,9 @@
     "minimist": "^1.2.8"
   },
   "scripts": {
-    "today": "bun run --silent index.ts --day $(date +'%d')",
-    "day": "bun run index.ts"
+    "open": "cmd.exe /C start  https://adventofcode.com/2023/day/$(date +'%-d') 2>/dev/null",
+    "start": "bun --watch --silent index.ts --day $(date +'%d')",
+    "today": "bun open && bun start",
+    "day": "bun --watch index.ts"
   }
 }

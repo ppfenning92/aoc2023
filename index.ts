@@ -14,13 +14,12 @@ const loadModule = async () => {
   }
 };
 
-const data = await Bun.file(`${PATH}/input.txt`).text();
-const { one, two } = await loadModule();
+const { run } = await loadModule();
+console.log(`
+Run #${new Date().getTime()} ...
+            `);
+await run(args["day"]);
 
-console.log("Part 1");
-await one();
-await one(data);
-
-console.log("Part 2");
-await two();
-await two(data);
+console.log(`
+###########################
+            `);
