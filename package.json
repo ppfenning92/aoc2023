@@ -4,6 +4,7 @@
   "type": "module",
   "devDependencies": {
     "@total-typescript/ts-reset": "^0.5.1",
+    "@types/cli-progress": "^3.11.5",
     "@typescript-eslint/eslint-plugin": "^6.13.1",
     "@typescript-eslint/parser": "^6.13.1",
     "bun-types": "latest",
@@ -14,6 +15,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "cli-progress": "^3.12.0",
     "minimist": "^1.2.8"
   },
   "scripts": {
