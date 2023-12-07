@@ -1,8 +1,6 @@
-import { log } from 'util';
 import { prepare } from '../utils/fetch-challenge';
 import { Res } from '../utils/types';
 import { sumReducer } from '../utils';
-import { argv0 } from 'process';
 
 const EX1_RES = '6440';
 const EX1_DAT = `
@@ -203,7 +201,7 @@ const two = async (data: string): Promise<Res> => {
         return 0;
     });
 
-    return ranked.map(([_, bid], idx) => bid * (idx + 1)).reduce(sumReducer, 0);
+    return ranked.map(([, bid], idx) => bid * (idx + 1)).reduce(sumReducer, 0);
 };
 // 250_957_765 to high
 // 250_054_801 to high
