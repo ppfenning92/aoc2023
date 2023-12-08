@@ -72,6 +72,7 @@ const two = async (data: string): Promise<Res> => {
     const currentNodes = [...startingNodes];
 
     const stepsToEndNode = currentNodes.map((node) => {
+        //   ^?
         let current = node;
         let steps = 0;
 
@@ -86,7 +87,6 @@ const two = async (data: string): Promise<Res> => {
 
     return lcm(...stepsToEndNode);
     //      ^?
-    //
 };
 
 export const run = async (day: string) => {
