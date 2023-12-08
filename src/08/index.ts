@@ -1,5 +1,6 @@
 import { prepare } from '../utils/fetch-challenge';
 import { Res } from '../utils/types';
+import { lcm } from 'mathjs';
 //
 // const EX1_RES = '2';
 // const EX1_DAT = `RL
@@ -40,7 +41,6 @@ const parser = (data: string): [Cmd[], Record<Node, { L: Node; R: Node }>] => {
 
 const one = async (data: string): Promise<Res> => {
     const [cmds, graph] = parser(data);
-    //      ^?
 
     let steps = 0;
     let current: string = 'AAA';
@@ -51,20 +51,42 @@ const one = async (data: string): Promise<Res> => {
         current = graph[current][cmds[idx]];
     }
     return steps;
-    // for (const cmd of cmds) {
-    //     current = graph[current][cmd];
-    //     steps++;
-    //     if (current === 'ZZZ') {
-    //         return steps;
-    //     }
-    // }
 };
 
-const EX2_RES = '';
-const EX2_DAT = '';
+const EX2_RES = '6';
+const EX2_DAT = `LR
+
+11A = (11B, XXX)
+11B = (XXX, 11Z)
+11Z = (11B, XXX)
+22A = (22B, XXX)
+22B = (22C, 22C)
+22C = (22Z, 22Z)
+22Z = (22B, 22B)
+XXX = (XXX, XXX)`;
 
 const two = async (data: string): Promise<Res> => {
-    return '';
+    const [cmds, graph] = parser(data);
+    const startingNodes = Object.keys(graph).filter((key) => key.match('A$'));
+
+    const currentNodes = [...startingNodes];
+
+    const stepsToEndNode = currentNodes.map((node) => {
+        let current = node;
+        let steps = 0;
+
+        while (!current.match('Z$')) {
+            const idx = steps % cmds.length;
+            steps++;
+            current = graph[current][cmds[idx]];
+        }
+
+        return steps;
+    });
+
+    return lcm(...stepsToEndNode);
+    //      ^?
+    //
 };
 
 export const run = async (day: string) => {
