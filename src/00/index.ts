@@ -2,7 +2,9 @@ import { prepare } from '../utils/fetch-challenge';
 import { Res } from '../utils/types';
 
 const EX1_RES = '';
-const EX1_DAT = '';
+const EX1_DAT = `
+
+`;
 
 const one = async (data: string): Promise<Res> => {
     return '';
