@@ -82,3 +82,5 @@ export const getAdjacentCoords = (
 
 export const intersection = <T>(array1: T[], array2: T[]) =>
     array1.filter((n) => array2.indexOf(n) !== -1);
+
+export const trim = (s: string, idx?: number, arr?: string[]) => s.trim();
