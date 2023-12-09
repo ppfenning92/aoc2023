@@ -1,3 +1,5 @@
+import { execSync } from 'child_process';
+
 export const prepare = async (day: string): Promise<string> => {
     const path = `./src/${day}/input.txt`;
     try {
@@ -6,8 +8,10 @@ export const prepare = async (day: string): Promise<string> => {
         console.warn('challenge not found, trying to download');
     }
 
-    const aoc_token = process.env['AOC_TOKEN'];
-
+    const aoc_token_raw = process.env['AOC_TOKEN'];
+    const aoc_token = aoc_token_raw?.startsWith('op://')
+        ? execSync(`op read "${aoc_token_raw}"`)
+        : aoc_token_raw;
     if (!aoc_token) {
         throw new Error('Please export your "AOC_TOKEN".');
     }
