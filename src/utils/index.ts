@@ -9,8 +9,8 @@ export const parseMatrix = (v: string) => {
         .map((l) => l.split(''));
 };
 
-export const printMatrix = (m: any[][]) => {
-    m.forEach((l) => console.log(l));
+export const printMatrix = (m: any[][], replace: (s: string) => string = (s) => s) => {
+    console.log(m.map((l) => l.map(replace).join('')).join('\n'));
 };
 
 type Direction =
