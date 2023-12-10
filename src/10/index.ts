@@ -1,7 +1,7 @@
 import { i, re } from 'mathjs';
 import { prepare } from '../utils/fetch-challenge';
 import { Res } from '../utils/types';
-import { parseMatrix, printMatrix } from '../utils';
+import { parseMatrix, printMatrix, toInt } from '../utils';
 
 const EX1_RES = '8';
 const EX1_DAT = `
@@ -97,19 +97,47 @@ const one = async (data: string): Promise<Res> => {
     return loop.size / 2;
 };
 
-const EX2_RES = '10';
+const EX2_S = 'F';
+const EX2_RES = '4';
 const EX2_DAT = `
-FF7FSF7F7F7F7F7F---7
-L|LJ||||||||||||F--J
-FL-7LJLJ||||||LJL-77
-F--JF--7||LJLJ7F7FJ-
-L---JF-JLJ.||-FJLJJ7
-|F|F-JF---7F7-L7L|7|
-|FFJF7L7F-JF7|JL---7
-7-L-JL7||F7|L7F-7F7|
-L.L7LFJ|||||FJL7||LJ
-L7JLJL-JLJLJL--JLJ.L`;
+..........
+.S------7.
+.|F----7|.
+.||OOOO||.
+.||OOOO||.
+.|L-7F-J|.
+.|II||II|.
+.L--JL--J.
+..........
+`;
 
+// const EX2_S = '7';
+// const EX2_RES = '10';
+// const EX2_DAT = `
+// FF7FSF7F7F7F7F7F---7
+// L|LJ||||||||||||F--J
+// FL-7LJLJ||||||LJL-77
+// F--JF--7||LJLJ7F7FJ-
+// L---JF-JLJ.||-FJLJJ7
+// |F|F-JF---7F7-L7L|7|
+// |FFJF7L7F-JF7|JL---7
+// 7-L-JL7||F7|L7F-7F7|
+// L.L7LFJ|||||FJL7||LJ
+// L7JLJL-JLJLJL--JLJ.L`;
+//
+// const EX2_S = 'F';
+// const EX2_RES = '8';
+// const EX2_DAT = `
+// .F----7F7F7F7F-7....
+// .|F--7||||||||FJ....
+// .||.FJ||||||||L7....
+// FJL7L7LJLJ||LJ.L-7..
+// L--J.L7...LJS7F-7L7.
+// ....F-J..F7FJ|L7L7L7
+// ....L7.F7||L7|.L7L7|
+// .....|FJLJ|FJ|F7|.LJ
+// ....FJL-7.||.||||...
+// ....L---J.LJ.LJLJ...`;
 // Flood fill algorithm implemented recursively
 function fillMatrix1(matrix, row, col) {
     if (!validCoordinates(matrix, row, col)) return;
@@ -127,61 +155,149 @@ function fillMatrix1(matrix, row, col) {
 function validCoordinates(matrix, row, col) {
     return row >= 0 && row < matrix.length && col >= 0 && col < matrix[row].length;
 }
+function addRowsAndColumns(matrix) {
+    const numRows = matrix.length;
+    const numCols = matrix[0].length;
 
+    // Add rows
+    for (let i = 0; i < numRows; i++) {
+        const newRow = new Array(numCols).fill('.');
+        matrix.splice(1 + i * 2, 0, newRow);
+    }
+
+    // Add columns
+    for (let i = 0; i < matrix.length; i++) {
+        for (let j = 0; j < numCols; j++) {
+            matrix[i].splice(1 + j * 2, 0, '.');
+        }
+    }
+}
+function removeUnevenRowsAndColumns(matrix) {
+    const numRows = matrix.length;
+    const numCols = matrix[0].length;
+
+    // Remove uneven rows
+    for (let i = numRows - 1; i >= 0; i--) {
+        if (i % 2 !== 0) {
+            matrix.splice(i, 1);
+        }
+    }
+
+    // Remove uneven columns
+    for (let i = numCols - 1; i >= 0; i--) {
+        if (i % 2 !== 0) {
+            for (let j = 0; j < matrix.length; j++) {
+                matrix[j].splice(i, 1);
+            }
+        }
+    }
+}
 const two = async (data: string): Promise<Res> => {
     const map = parseMatrix(data) as (keyof typeof PIPES)[][];
     // printMatrix(map, replacer);
 
     const startingNode = findStart(map);
-    map[startingNode[0]][startingNode[1]] = 'F';
+    map[startingNode[0]][startingNode[1]] = EX2_S;
     const loop = walk(map, startingNode, new Set());
 
-    const nodesToConsider = new Set();
     for (let r = 0; r < map.length; r++) {
         for (let c = 0; c < map[r].length; c++) {
             if (loop.has(`${r}-${c}`)) continue;
             map[r][c] = '.';
-            nodesToConsider.add(`${r}-${c}`);
+            // nodesToConsider.add(`${r}-${c}`);
         }
     }
-    // printMatrix(map);
-    fillMatrix1(map, 0, 0);
-    fillMatrix1(map, 0, map[0].length - 1);
+    addRowsAndColumns(map);
     for (let r = 0; r < map.length; r++) {
         for (let c = 0; c < map[r].length; c++) {
-            if (map[r][c] === ' ') {
-                nodesToConsider.delete(`${r}-${c}`);
+            if ('F7|'.includes(map[r - 1]?.[c]) && 'JL|'.includes(map[r + 1]?.[c])) {
+                map[r][c] = '|';
+            }
+            if ('FL-'.includes(map[r][c - 1]) && 'J7-'.includes(map[r][c + 1])) {
+                map[r][c] = '-';
+            }
+        }
+    }
+    printMatrix(map);
+    //
+    for (let r = 0; r < map.length; r++) {
+        fillMatrix1(map, r, 0);
+        fillMatrix1(map, r, map[0].length - 1);
+    }
+    for (let c = 0; c < map[0].length; c++) {
+        fillMatrix1(map, 0, c);
+        fillMatrix1(map, map.length - 1, c);
+    }
+    // for (let r = 0; r < map.length; r++) {
+    //     for (let c = 0; c < map[r].length; c++) {
+    //         if (map[r][c] === ' ') {
+    //             nodesToConsider.delete(`${r}-${c}`);
+    //         }
+    //     }
+    // }
+    printMatrix(map, replacer);
+
+    removeUnevenRowsAndColumns(map);
+    // printMatrix(map);
+
+    // [...nodesToConsider].forEach((rc) => {
+    //     const [r, c] = rc.split('-').map(toInt);
+    //     let fromNorth = 0;
+    //     for (let y = 0; y <= r; y++) {
+    //         if (['F', '-', '|', '7', 'J', 'L'].includes(map[y][c])) {
+    //             fromNorth++;
+    //         }
+    //     }
+    //     let fromSouth = 0;
+    //     for (let y = map.length - 1; y >= r; y--) {
+    //         if (['F', '-', '|', '7', 'J', 'L'].includes(map[y][c])) {
+    //             fromSouth++;
+    //         }
+    //     }
+    //     let fromWest = 0;
+    //     for (let x = 0; x <= c; x++) {
+    //         if (['|', '-', 'F', '7', 'J', 'L'].includes(map[r][x])) {
+    //             fromWest++;
+    //         }
+    //     }
+    //     let fromEast = 0;
+    //
+    //     for (let x = map[0].length - 1; x >= c; x--) {
+    //         if (['|', '-', 'F', '7', 'J', 'L'].includes(map[r][x])) {
+    //             fromEast++;
+    //         }
+    //     }
+    //
+    //     const pipesCrossedFromDir = [fromNorth, fromSouth, fromWest, fromEast].filter(
+    //         (x) => !(x & 1)
+    //     ).length;
+    //     // console.log({ rc, fromNorth, fromSouth, fromWest, fromEast, pipesCrossedFromDir });
+    //
+    //     if (pipesCrossedFromDir) {
+    //         map[r][c] = ' ';
+    //         nodesToConsider.delete(`${r}-${c}`);
+    //     }
+    // });
+    //
+    // 297 TO LOW
+    // 316 to LOW
+    // 476 wrong
+    // 471 wrong
+    // 610 max
+    printMatrix(map, replacer);
+
+    let dots = 0;
+    for (let r = 0; r < map.length; r++) {
+        for (let c = 0; c < map[r].length; c++) {
+            if (map[r][c] === '.') {
+                dots++;
             }
         }
     }
 
-    [...nodesToConsider].forEach((rc) => {
-        const [r, c] = rc.split('-');
-        let pipes = 0;
-        for (let y = 0; y < r; y++) {
-            if (map[y][c].trim()) {
-                pipes++;
-            }
-        }
-        if (pipes % 2 !== 0) {
-            map[r][c] = ' ';
-            nodesToConsider.delete(rc);
-        }
-        pipes = 0;
-        for (let x = 0; x < c; x++) {
-            if (map[r][x].trim()) {
-                pipes++;
-            }
-        }
-        if (pipes % 2 !== 0) {
-            map[r][c] = ' ';
-            nodesToConsider.delete(rc);
-        }
-    });
-    printMatrix(map, replacer);
-    console.log(nodesToConsider.size);
+    console.log(dots);
 
-    return nodesToConsider.size;
+    return dots;
 };
 
 export const run = async (day: string) => {
