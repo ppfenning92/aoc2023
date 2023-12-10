@@ -9,7 +9,7 @@ export const parseMatrix = (v: string) => {
         .map((l) => l.split(''));
 };
 
-export const printMatrix = (m: any[][], replace: (s: string) => string = (s) => s) => {
+export const printMatrix = (m: string[][], replace: (s: string) => string = (s: string) => s) => {
     console.log(m.map((l) => l.map(replace).join('')).join('\n'));
 };
 
