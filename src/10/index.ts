@@ -138,23 +138,30 @@ const EX2_DAT = `
 // .....|FJLJ|FJ|F7|.LJ
 // ....FJL-7.||.||||...
 // ....L---J.LJ.LJLJ...`;
-// Flood fill algorithm implemented recursively
-function fillMatrix1(matrix: Map, row: number, col: number) {
+
+/**
+ * random google hit
+ */
+function floodFill(matrix: Map, row: number, col: number) {
     if (!validCoordinates(matrix, row, col)) return;
 
     if (matrix[row][col] !== '.') return;
 
     matrix[row][col] = ' ';
 
-    fillMatrix1(matrix, row + 1, col);
-    fillMatrix1(matrix, row - 1, col);
-    fillMatrix1(matrix, row, col + 1);
-    fillMatrix1(matrix, row, col - 1);
+    floodFill(matrix, row + 1, col);
+    floodFill(matrix, row - 1, col);
+    floodFill(matrix, row, col + 1);
+    floodFill(matrix, row, col - 1);
 }
 
 function validCoordinates(matrix: Map, row: number, col: number) {
     return row >= 0 && row < matrix.length && col >= 0 && col < matrix[row].length;
 }
+
+/**
+ * thanks GPT3.5
+ */
 function addRowsAndColumns(matrix: Map) {
     const numRows = matrix.length;
     const numCols = matrix[0].length;
@@ -172,6 +179,10 @@ function addRowsAndColumns(matrix: Map) {
         }
     }
 }
+
+/**
+ * GPT3.5
+ */
 function removeUnevenRowsAndColumns(matrix: Map) {
     const numRows = matrix.length;
     const numCols = matrix[0].length;
@@ -218,12 +229,12 @@ const two = async (data: string): Promise<Res> => {
     // printMatrix(map);
 
     for (let r = 0; r < map.length; r++) {
-        fillMatrix1(map, r, 0);
-        fillMatrix1(map, r, map[0].length - 1);
+        floodFill(map, r, 0);
+        floodFill(map, r, map[0].length - 1);
     }
     for (let c = 0; c < map[0].length; c++) {
-        fillMatrix1(map, 0, c);
-        fillMatrix1(map, map.length - 1, c);
+        floodFill(map, 0, c);
+        floodFill(map, map.length - 1, c);
     }
     // printMatrix(map, replacer);
 
