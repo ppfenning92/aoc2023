@@ -215,7 +215,7 @@ const two = async (data: string): Promise<Res> => {
             }
         }
     }
-    printMatrix(map);
+    // printMatrix(map);
 
     for (let r = 0; r < map.length; r++) {
         fillMatrix1(map, r, 0);
@@ -225,7 +225,7 @@ const two = async (data: string): Promise<Res> => {
         fillMatrix1(map, 0, c);
         fillMatrix1(map, map.length - 1, c);
     }
-    printMatrix(map, replacer);
+    // printMatrix(map, replacer);
 
     removeUnevenRowsAndColumns(map);
     // 297 TO LOW
@@ -243,8 +243,6 @@ const two = async (data: string): Promise<Res> => {
             }
         }
     }
-
-    console.log(dots);
 
     return dots;
 };
