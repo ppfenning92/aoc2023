@@ -1,6 +1,39 @@
 export const toInt = (v: string) => parseInt(v, 10);
 export const sumReducer = (sum: number, x: string | number): number => (sum += toInt(`${x}`));
 
+export function transposeMatrix(matrix: T[][]): T[][] {
+    // Create a new matrix with the dimensions swapped
+    const transposed = new Array(matrix[0].length)
+        .fill(0)
+        .map(() => new Array(matrix.length).fill(0));
+
+    for (let i = 0; i < matrix.length; i++) {
+        for (let j = 0; j < matrix[i].length; j++) {
+            // Swap the row and column indices
+            transposed[j][i] = matrix[i][j];
+        }
+    }
+
+    return transposed;
+}
+
+export function arraysAreEqual<T = unknown>(arr1?: T[], arr2?: T[]) {
+    // Check if the arrays are the same length
+    if (arr1?.length !== arr2?.length) {
+        return false;
+    }
+
+    // Check each element in the arrays
+    for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i] !== arr2[i]) {
+            return false;
+        }
+    }
+
+    // If all checks pass, the arrays are the same
+    return true;
+}
+
 export const parseMatrix = (v: string) => {
     return v
         .split('\n')
