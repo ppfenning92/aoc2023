@@ -113,6 +113,8 @@ const two = async (data: string): Promise<Res> => {
 
         if (seen.has(str)) {
             rest = (CYCLES - seen.get(str) - 1) % (index - seen.get(str));
+            console.log('CYCLE DETECTED ', seen.get(str));
+
             break;
         } else {
             seen.set(str, index);
