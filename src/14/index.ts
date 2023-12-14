@@ -1,9 +1,6 @@
-import { map, sum } from 'mathjs';
-import { parseMatrix, printMatrix, sumReducer } from '../utils';
+import { parseMatrix, sumReducer } from '../utils';
 import { prepare } from '../utils/fetch-challenge';
 import { Res } from '../utils/types';
-import { plugin } from 'bun';
-import { Presets, SingleBar } from 'cli-progress';
 
 const EX1_RES = '136';
 
@@ -33,7 +30,7 @@ const one = async (data: string): Promise<Res> => {
     const res = plattform.map((row, rowIdx) => {
         return row.filter((e) => e === 'O').length * Math.abs(rowIdx - plattform.length);
     });
-    return sum(res);
+    return res.reduce(sumReducer, 0);
 };
 
 const tiltSouth = (plattform: Plattform) => {
@@ -93,19 +90,13 @@ const CYCLES = 1_000_000_000;
 const two = async (data: string): Promise<Res> => {
     const plattform = parser(data);
 
-    // printMatrix(plattform);
-    const progress = new SingleBar({}, Presets.shades_grey);
-
     const seen = new Map();
-    // progress.start(CYCLES, 0);
     let rest = 0;
     for (let index = 0; index < CYCLES; index++) {
         tiltNorth(plattform);
         tiltWest(plattform);
         tiltSouth(plattform);
         tiltEast(plattform);
-        // printMatrix(plattform);
-        // progress.update(index);
         //
         const str = plattform.reduce((rows, row) => {
             return `${rows},${row.reduce((line, char) => `${line}${char}`, '')}`;
