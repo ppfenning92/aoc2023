@@ -44,6 +44,7 @@ export const parseMatrix = (v: string) => {
 
 export const printMatrix = (m: unknown[][], replace: (s: string) => string = (s: string) => s) => {
     console.log(m.map((l) => l.map(replace).join('')).join('\n'));
+    console.log('');
 };
 
 type Direction =
