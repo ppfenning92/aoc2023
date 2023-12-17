@@ -34,12 +34,15 @@ export function arraysAreEqual<T = unknown>(arr1?: T[], arr2?: T[]) {
     return true;
 }
 
-export const parseMatrix = (v: string) => {
+export const parseMatrix = (
+    v: string,
+    transform: (char: string) => unknown = (char: string) => char
+) => {
     return v
         .split('\n')
         .map((l) => l.trim())
         .filter(Boolean)
-        .map((l) => l.split(''));
+        .map((l) => l.split('').map(transform));
 };
 
 export const printMatrix = (m: unknown[][], replace: (s: string) => string = (s: string) => s) => {
