@@ -103,6 +103,15 @@ const one = async (data: string): Promise<Res> => {
 const EX2_RES = '525152';
 const EX2_DAT = EX1_DAT;
 
+const findValidWithDFS = (info: Info) => {
+    const count = 0;
+
+    const [start, ...rest] = info;
+
+    if (start === '?') {
+        findValidWithDFS();
+    }
+};
 const two = async (data: string): Promise<Res> => {
     const records = parser(data);
 
