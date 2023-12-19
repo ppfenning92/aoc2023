@@ -1,5 +1,7 @@
+import { Stack } from 'typescript-collections';
 import { prepare } from '../utils/fetch-challenge';
 import { Res } from '../utils/types';
+import { firstRadiationDependencies, re } from 'mathjs';
 
 const EX1_RES = 19114;
 const EX1_DAT = `
@@ -151,16 +153,74 @@ const one = async (data: string): Promise<Res> => {
 const EX2_RES = 167_409_079_868_000;
 const EX2_DAT = EX1_DAT;
 
-const getAcceptenceConditions = (workflow: Workflow): Array<Condition[]> => {
-    const root = workflow['in'];
-    if (!root) {
-        throw new Error('No root');
-    }
 
-    return [];
-};
+const findPathsToA = (workflow: Workflow, startKey = 'in', path: Condition[], paths: Condition[][] = []) => {
+  const { category, op, value, next: truhy } = workflow[startKey][0] as Rule;
+  
+  path.push([{ category, op, value }]);
+
+  if (truhy === 'A') {
+    paths.push([...path]);
+  } else if (workflow[truhy]) {
+      findPathsToA(workflow, truhy, path, paths);
+  }
+    
+  
+  
+  path.pop()
+  return paths;
+
+
+}
 const two = async (data: string): Promise<Res> => {
     const workflow = (parse(data) as [Rating[], Workflow])[1];
+
+    let canSimplify = true;
+    while (canSimplify) {
+        const finalWorkflows = Object.entries(workflow).reduce(
+            (acc, [name, rules]) => {
+                if (rules.length === 2) {
+                    const [rule1, rule2] = rules;
+                    if (
+                        'op' in rule1 &&
+                        !('op' in rule2) &&
+                        STATES.includes(rule1.next) &&
+                        STATES.includes(rule2.next) &&
+                        rule1.next === rule2.next
+                    ) {
+                        acc[name] = rule1.next;
+                    }
+                }
+                return acc;
+            },
+            {} as Record<string, State>
+        );
+        if (Object.keys(finalWorkflows).length === 0) {
+            canSimplify = false;
+        }
+
+        Object.entries(finalWorkflows).forEach(([name, state]) => {
+            Object.values(workflow).forEach((rules) => {
+                rules.forEach((rule) => {
+                    if ('next' in rule && rule.next === name) {
+                        rule.next = state;
+                    }
+                });
+            });
+
+            delete workflow[name];
+        });
+    }
+
+    // find all paths to state 'A'
+    const paths = string[][]
+    const stack = new Stack<string[]>();
+    stack.push(['in']);
+
+    while (!stack.isEmpty()) {
+      
+    }
+
 
     return '';
 };
