@@ -1,4 +1,3 @@
-import { re } from 'mathjs';
 import { prepare } from '../utils/fetch-challenge';
 import { Res } from '../utils/types';
 
@@ -41,6 +40,11 @@ type Rule =
       }
     | { next: State | string };
 
+type Condition = {
+    category: Category;
+    op: Op;
+    value: number;
+};
 type Workflow = Record<string, Rule[]>;
 type Rating = Record<Category, number>;
 
@@ -97,8 +101,6 @@ const evaluate = (rating: Rating, category: Category, op: Op, value: number): bo
 };
 const one = async (data: string): Promise<Res> => {
     const [ratings, workflow] = parse(data) as [Rating[], Workflow];
-    console.log(ratings);
-    console.log(workflow);
 
     const acceptedRatings = ratings
         .map((rating) => {
@@ -141,17 +143,25 @@ const one = async (data: string): Promise<Res> => {
         })
         .filter(Boolean);
 
-    console.log(acceptedRatings);
-
     return acceptedRatings.reduce((acc, rating) => {
         return acc + rating.x + rating.m + rating.a + rating.s;
     }, 0);
 };
 
-const EX2_RES = '';
-const EX2_DAT = '';
+const EX2_RES = 167_409_079_868_000;
+const EX2_DAT = EX1_DAT;
 
+const getAcceptenceConditions = (workflow: Workflow): Array<Condition[]> => {
+    const root = workflow['in'];
+    if (!root) {
+        throw new Error('No root');
+    }
+
+    return [];
+};
 const two = async (data: string): Promise<Res> => {
+    const workflow = (parse(data) as [Rating[], Workflow])[1];
+
     return '';
 };
 
