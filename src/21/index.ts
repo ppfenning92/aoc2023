@@ -1,7 +1,8 @@
 import { Presets, SingleBar } from 'cli-progress';
 import { prepare } from '../utils/fetch-challenge';
 import { Res } from '../utils/types';
-
+import { printMatrix } from '../utils';
+import sharp from 'sharp';
 const EX1_RES = '16';
 const EX1_DAT = `
 ...........
@@ -76,6 +77,11 @@ const one = async (data: string, steps: number): Promise<Res> => {
         currentPossiblePositions.clear();
         newPossiblePositions.forEach((pos) => currentPossiblePositions.add(pos));
     }
+    for (const coordinates of currentPossiblePositions) {
+        const [row, col] = coordinates.split('-').map(Number);
+        map[row][col] = '0';
+    }
+    printMatrix(map);
     return currentPossiblePositions.size.toString();
 };
 
@@ -104,57 +110,100 @@ const isRock = (
 // -17 -6 5 16 27
 const two = async (data: string, steps: number, sol?: number): Promise<Res> => {
     const { start, map } = parse(data);
-
-    const rocks: [number, number][] = [];
-    for (let row = 0; row < map.length; row++) {
-        for (let col = 0; col < map[row].length; col++) {
-            if (map[row][col] === '#') {
-                rocks.push([row, col]);
-            }
-        }
-    }
-
-    let currentPossiblePositions = new Set<string>([coordinatesToString(start)]);
-    const progressBar = new SingleBar(
-        {
-            format: '{bar} || {percentage}% | {duration}s | {value}/{total} Steps',
+    const input = Uint8Array.from([255, 0, 255, 0, 128, 0]); // or Uint8ClampedArray
+    const image = sharp(input, {
+        // because the input does not contain its dimensions or how many channels it has
+        // we need to specify it in the constructor options
+        raw: {
+            width: 2,
+            height: 1,
+            channels: 3,
         },
-        Presets.shades_grey
-    );
+    });
+    await image.toFile('my-two-pixels.png');
+    printMatrix(map);
+    const mapTimesNine = map.map((row) => [...row, ...row, ...row]);
+    mapTimesNine.push(...mapTimesNine, ...mapTimesNine);
+    // mapTimesNine.push(...mapTimesNine);
+    printMatrix(mapTimesNine);
 
-    progressBar.start(steps, 0);
-    for (let step = 0; step < steps; step++) {
-        progressBar.update(step + 1);
-        const newPossiblePositions = new Set<string>();
-
-        for (const coordinates of currentPossiblePositions) {
-            const [row, col] = coordinates.split('-').map(Number);
-
-            for (const [deltaRow, deltaCol] of [
-                [0, 1],
-                [1, 0],
-                [0, -1],
-                [-1, 0],
-            ]) {
-                const newRow = row + deltaRow;
-                const newCol = col + deltaCol;
-                if (isRock([newRow, newCol], rocks, [map.length, map[0].length])) {
-                    continue;
-                }
-
-                newPossiblePositions.add(coordinatesToString([newRow, newCol]));
-            }
+    await sharp(
+        Uint8Array.from(
+            mapTimesNine
+                .map((row) =>
+                    row.map((tile) => {
+                        return tile === '#' ? [0, 0, 0, 0.7] : [255, 0, 255, 1];
+                    })
+                )
+                .flat(2)
+        ),
+        {
+            // raw: {
+            //     width: mapTimesNine[0].length,
+            //     height: mapTimesNine.length,
+            //     channels: 4,
+            // },
+            create: {
+                width: mapTimesNine[0].length,
+                height: mapTimesNine.length,
+                channels: 4,
+                background: { r: 0, g: 0, b: 0, alpha: 1 },
+            },
+            // background: { r: 0, g: 0, b: 0 },
         }
-        currentPossiblePositions = newPossiblePositions;
-    }
-    progressBar.stop();
-    const res = currentPossiblePositions.size;
-
-    if (sol) {
-        console.log(`Expected: ${sol} - Received: ${res}`);
-        return res === sol ? 1 : 0;
-    }
-    return res;
+    )
+        .png()
+        .toFile('map.png');
+    // const rocks: [number, number][] = [];
+    // for (let row = 0; row < map.length; row++) {
+    //     for (let col = 0; col < map[row].length; col++) {
+    //         if (map[row][col] === '#') {
+    //             rocks.push([row, col]);
+    //         }
+    //     }
+    // }
+    //
+    // let currentPossiblePositions = new Set<string>([coordinatesToString(start)]);
+    // const progressBar = new SingleBar(
+    //     {
+    //         format: '{bar} || {percentage}% | {duration}s | {value}/{total} Steps',
+    //     },
+    //     Presets.shades_grey
+    // );
+    //
+    // progressBar.start(steps, 0);
+    // for (let step = 0; step < steps; step++) {
+    //     progressBar.update(step + 1);
+    //     const newPossiblePositions = new Set<string>();
+    //
+    //     for (const coordinates of currentPossiblePositions) {
+    //         const [row, col] = coordinates.split('-').map(Number);
+    //
+    //         for (const [deltaRow, deltaCol] of [
+    //             [0, 1],
+    //             [1, 0],
+    //             [0, -1],
+    //             [-1, 0],
+    //         ]) {
+    //             const newRow = row + deltaRow;
+    //             const newCol = col + deltaCol;
+    //             if (isRock([newRow, newCol], rocks, [map.length, map[0].length])) {
+    //                 continue;
+    //             }
+    //
+    //             newPossiblePositions.add(coordinatesToString([newRow, newCol]));
+    //         }
+    //     }
+    //     currentPossiblePositions = newPossiblePositions;
+    // }
+    // progressBar.stop();
+    // const res = currentPossiblePositions.size;
+    //
+    // if (sol) {
+    //     console.log(`Expected: ${sol} - Received: ${res}`);
+    //     return res === sol ? 1 : 0;
+    // }
+    // return res;
 };
 
 export const run = async (day: string) => {
@@ -174,23 +223,23 @@ export const run = async (day: string) => {
     }
 
     console.log('PART 1:', await one(data, 64));
-
-    if (
-        [
-            await two(EX2_DAT, 6, 16),
-            await two(EX2_DAT, 10, 50),
-            await two(EX2_DAT, 50, 1594),
-            await two(EX2_DAT, 64, 3722),
-            await two(EX2_DAT, 100, 6536),
-            await two(EX2_DAT, 500, 167004),
-            await two(EX2_DAT, 1000, 668697),
-            await two(EX2_DAT, 5000, 16733044),
-        ].some((res) => !res)
-    ) {
-        const msg = `Part 2 failed!`;
-        console.error(msg);
-        return;
-    }
+    //
+    // if (
+    //     [
+    //         await two(EX2_DAT, 6, 16),
+    //         await two(EX2_DAT, 10, 50),
+    //         await two(EX2_DAT, 50, 1594),
+    //         await two(EX2_DAT, 64, 3722),
+    //         await two(EX2_DAT, 100, 6536),
+    //         await two(EX2_DAT, 500, 167004),
+    //         await two(EX2_DAT, 1000, 668697),
+    //         await two(EX2_DAT, 5000, 16733044),
+    //     ].some((res) => !res)
+    // ) {
+    //     const msg = `Part 2 failed!`;
+    //     console.error(msg);
+    //     return;
+    // }
 
     console.log('PART 2:', await two(data, 26501365));
 
